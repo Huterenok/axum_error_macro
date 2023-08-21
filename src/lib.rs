@@ -3,7 +3,8 @@
 //! ## Example:
 //! ```rust
 //! use axum_error_macro::ErrorResponse;
-//!
+//!	use axum::response::Response;
+//! 
 //! #[derive(ErrorResponse)]
 //! enum Error {
 //!   #[error(code = 500, msg = "Internal Server Error!!!")]
@@ -27,19 +28,19 @@
 //!   username: String
 //! }
 //!
-//! fn server_error_handler() -> Error {
+//! fn server_error_handler() -> Response {
 //!   return Error::InternalServerError.into_response();
 //! }
 //!
-//! fn user_by_id_handler() -> Error {
+//! fn user_by_id_handler() -> Response {
 //!   return Error::UserByIdNotFound(1).into_response();
 //! }
 //!
-//! fn user_by_username_and_role_handler() -> Error {
+//! fn user_by_username_and_role_handler() -> Response {
 //!   return Error::UserByUsernameAndRoleNotFound("Bebra".into(), "ADMIN".into()).into_response();
 //! }
 //!
-//! fn user_handler() -> Error {
+//! fn user_handler() -> Response {
 //!   let user = User {
 //!     username: "Bebra".into()
 //!   };
