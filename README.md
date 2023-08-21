@@ -2,7 +2,7 @@ Installation:
 
 ```toml
 [dependencies]
-axum_error_macro = { version = "0.1.0" }
+axum_error_macro = { version = "0.1.3" }
 ```
 
 Simple example
