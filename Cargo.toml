@@ -1,6 +1,6 @@
 [package]
 name = "axum_error_macro"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Huterok Bebrov"]
 license = "MIT"
 description = "Simple derive macro for your custom Error enum to generate quickly its status code and message"
