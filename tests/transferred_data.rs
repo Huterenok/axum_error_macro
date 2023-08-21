@@ -1,9 +1,9 @@
 mod transferred_data {
-    use axum_error_macro::ErrorResponse;
+    use axum_error_macro::IntoResponse;
 
     #[tokio::test]
     async fn right_transferred_data() {
-        #[derive(ErrorResponse)]
+        #[derive(IntoResponse)]
         enum Error {
             #[error(code = 500, msg = "Internal server error!!!")]
             InternalServerError,
@@ -38,7 +38,7 @@ mod transferred_data {
     #[tokio::test]
     #[should_panic]
     async fn wrong_transferred_data() {
-        #[derive(ErrorResponse)]
+        #[derive(IntoResponse)]
         enum Error {
             #[error(code = 500, msg = "Internal server error!!!")]
             InternalServerError,

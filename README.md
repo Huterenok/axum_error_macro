@@ -2,16 +2,16 @@ Installation:
 
 ```toml
 [dependencies]
-axum_error_macro = { version = "0.1.3" }
+axum_error_macro = { version = "0.1.4" }
 ```
 
 Simple example
 
 ```rust
-use axum_error_macro::ErrorResponse;
+use axum_error_macro::IntoResponse;
 use axum::response::Response;
 
-#[derive(ErrorResponse)]
+#[derive(IntoResponse)]
 enum Error {
   #[error(code = 500, msg = "Internal Server Error!!!")]
   InternalServerError,

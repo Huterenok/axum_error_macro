@@ -2,10 +2,10 @@
 //!
 //! ## Example:
 //! ```rust
-//! use axum_error_macro::ErrorResponse;
+//! use axum_error_macro::IntoResponse;
 //!	use axum::response::Response;
 //! 
-//! #[derive(ErrorResponse)]
+//! #[derive(IntoResponse)]
 //! enum Error {
 //!   #[error(code = 500, msg = "Internal Server Error!!!")]
 //!   InternalServerError,
@@ -57,7 +57,7 @@ use syn::spanned::Spanned;
 use syn::token::Comma;
 use syn::{Fields, MetaList, Variant};
 
-#[proc_macro_derive(ErrorResponse, attributes(error))]
+#[proc_macro_derive(IntoResponse, attributes(error))]
 pub fn axum_error_macro_derive(input: TokenStream) -> TokenStream {
     let ast: syn::DeriveInput = syn::parse(input).unwrap();
     impl_error(ast)
@@ -71,12 +71,11 @@ fn impl_error(ast: syn::DeriveInput) -> TokenStream {
     let matches = match_error(ident.clone(), eident.clone(), variants);
 
     let expanded = quote!(
+          use axum::response::IntoResponse;
           use axum::http::StatusCode;
           use hyper::body::HttpBody;
 
-          trait ErrorResponse {
-            fn into_response(self) -> axum::response::Response;
-          }
+          const TEXT_PLAIN: &str = "text/plain";
 
           pub struct #eident(axum::http::StatusCode, String);
 
@@ -87,20 +86,20 @@ fn impl_error(ast: syn::DeriveInput) -> TokenStream {
             }
           }
 
-          impl ErrorResponse for #eident {
+          impl axum::response::IntoResponse for #eident {
             fn into_response(self) -> axum::response::Response {
                 axum::response::Response::builder()
                   .status(self.0)
                   .header(
                     hyper::header::CONTENT_TYPE,
-                    axum::http::HeaderValue::from_static(mime::TEXT_PLAIN_UTF_8.as_ref()),
+                    axum::http::HeaderValue::from_static(TEXT_PLAIN),
                   )
                   .body(axum::body::boxed(axum::body::Full::from(self.1)))
                   .unwrap()
             }
           }
 
-            impl ErrorResponse for #ident {
+            impl axum::response::IntoResponse for #ident {
                 fn into_response(self) -> axum::response::Response {
                     let res = match self {
                       #(#matches),*

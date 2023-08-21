@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod status_code {
-    use axum_error_macro::ErrorResponse;
+    use axum_error_macro::IntoResponse;
 
     #[test]
     fn right_status_code() {
-        #[derive(ErrorResponse)]
+        #[derive(IntoResponse)]
         enum Error {
             #[error(code = 500, msg = "123")]
             InternalServerError,
@@ -25,7 +25,7 @@ mod status_code {
     #[test]
     #[should_panic]
     fn wrong_status_code() {
-        #[derive(ErrorResponse)]
+        #[derive(IntoResponse)]
         enum Error {
             #[error(code = 500, msg = "123")]
             InternalServerError,
