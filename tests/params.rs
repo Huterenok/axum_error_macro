@@ -2,7 +2,7 @@ mod params {
     use axum_error_macro::IntoResponse;
 
     #[tokio::test]
-    async fn right_params() {
+    async fn right_param() {
         #[derive(IntoResponse)]
         enum Error {
             #[error(code = 404, msg = "Post by {} id was not found")]
@@ -38,7 +38,33 @@ mod params {
     }
 
     #[tokio::test]
-    async fn struct_params() {
+    async fn right_multiply_params() {
+        #[derive(IntoResponse)]
+        enum Error {
+            #[error(code = 404, msg = "User by {} username with {} role was not found")]
+            UserByUsernameAndRoleNotFound(String, String),
+        }
+        let role = "ADMIN";
+        let username = "Bebra";
+
+        let error_msg = format!(
+            "User by {} username with {} role was not found",
+            username, role
+        );
+
+        assert_eq!(
+            Error::UserByUsernameAndRoleNotFound(username.into(), role.into())
+                .into_response()
+                .data()
+                .await
+                .unwrap()
+                .unwrap(),
+            error_msg.as_bytes()
+        );
+    }
+
+    #[tokio::test]
+    async fn struct_param() {
         #[derive(Debug)]
         struct User {
             username: String,
