@@ -8,11 +8,9 @@ axum_error_macro = { version = "0.1.0" }
 Simple example
 
 ```rust
-// A trait that the Validate derive will impl
-use axum_error_macro::IntoResponse;
+use axum_error_macro::ErrorResponse;
 
-#[derive(Debug, Validate, Deserialize)]
-#[derive(IntoResponse)]
+#[derive(ErrorResponse)]
 enum Error {
   #[error(code = 500, msg = "Internal Server Error!!!")]
   InternalServerError,

@@ -1,9 +1,9 @@
 mod params {
-    use axum_error_macro::IntoResponse;
+    use axum_error_macro::ErrorResponse;
 
     #[tokio::test]
     async fn right_param() {
-        #[derive(IntoResponse)]
+        #[derive(ErrorResponse)]
         enum Error {
             #[error(code = 404, msg = "Post by {} id was not found")]
             PostByIdNotFound(u32),
@@ -39,7 +39,7 @@ mod params {
 
     #[tokio::test]
     async fn right_multiply_params() {
-        #[derive(IntoResponse)]
+        #[derive(ErrorResponse)]
         enum Error {
             #[error(code = 404, msg = "User by {} username with {} role was not found")]
             UserByUsernameAndRoleNotFound(String, String),
@@ -70,7 +70,7 @@ mod params {
             username: String,
         }
 
-        #[derive(IntoResponse)]
+        #[derive(ErrorResponse)]
         enum Error {
             #[error(code = 404, msg = "User {:?}  was not found")]
             UserNotFound(User),

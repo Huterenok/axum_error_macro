@@ -1,3 +1,52 @@
+//! Simple derive macro for your custom Error enum to generate quickly its status code and message.
+//!
+//! ## Example:
+//! ```rust
+//! use axum_error_macro::ErrorResponse;
+//!
+//! #[derive(ErrorResponse)]
+//! enum Error {
+//!   #[error(code = 500, msg = "Internal Server Error!!!")]
+//!   InternalServerError,
+//!
+//!   #[error(code = 400, msg = "Bad Request!!!")]
+//!   BadRequest,
+//!
+//!   #[error(code = 404, msg = "User by {} id was not found")]
+//!   UserByIdNotFound(u32),
+//!
+//!   #[error(code = 404, msg = "User by {} username with {} role was not found")]
+//!   UserByUsernameAndRoleNotFound(String, String),
+//! 
+//!   #[error(code = 404, msg = "User {:?} was not found")]
+//!   UserNotFound(User)
+//! }
+//!
+//! #[derive(Debug)]
+//! struct User {
+//!   username: String
+//! }
+//!
+//! fn server_error_handler() -> Error {
+//!   return Error::InternalServerError.into_response();
+//! }
+//!
+//! fn user_by_id_handler() -> Error {
+//!   return Error::UserByIdNotFound(1).into_response();
+//! }
+//!
+//! fn user_by_username_and_role_handler() -> Error {
+//!   return Error::UserByUsernameAndRoleNotFound("Bebra".into(), "ADMIN".into()).into_response();
+//! }
+//!
+//! fn user_handler() -> Error {
+//!   let user = User {
+//!     username: "Bebra".into()
+//!   };
+//!   return Error::UserNotFound(user).into_response();
+//! }
+//! ```
+
 use litrs::{IntegerLit, StringLit};
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, TokenTree};
@@ -7,7 +56,7 @@ use syn::spanned::Spanned;
 use syn::token::Comma;
 use syn::{Fields, MetaList, Variant};
 
-#[proc_macro_derive(IntoResponse, attributes(error))]
+#[proc_macro_derive(ErrorResponse, attributes(error))]
 pub fn axum_error_macro_derive(input: TokenStream) -> TokenStream {
     let ast: syn::DeriveInput = syn::parse(input).unwrap();
     impl_error(ast)
@@ -21,9 +70,12 @@ fn impl_error(ast: syn::DeriveInput) -> TokenStream {
     let matches = match_error(ident.clone(), eident.clone(), variants);
 
     let expanded = quote!(
-          use axum::response::IntoResponse;
-                    use axum::http::StatusCode;
-                use hyper::body::HttpBody;
+          use axum::http::StatusCode;
+          use hyper::body::HttpBody;
+
+          trait ErrorResponse {
+            fn into_response(self) -> axum::response::Response;
+          }
 
           pub struct #eident(axum::http::StatusCode, String);
 
@@ -34,7 +86,7 @@ fn impl_error(ast: syn::DeriveInput) -> TokenStream {
             }
           }
 
-          impl axum::response::IntoResponse for #eident {
+          impl ErrorResponse for #eident {
             fn into_response(self) -> axum::response::Response {
                 axum::response::Response::builder()
                   .status(self.0)
@@ -47,7 +99,7 @@ fn impl_error(ast: syn::DeriveInput) -> TokenStream {
             }
           }
 
-            impl axum::response::IntoResponse for #ident {
+            impl ErrorResponse for #ident {
                 fn into_response(self) -> axum::response::Response {
                     let res = match self {
                       #(#matches),*
