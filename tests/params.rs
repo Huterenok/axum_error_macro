@@ -1,6 +1,4 @@
 mod params {
-    use std::path::Display;
-
     use axum_error_macro::IntoResponse;
 
     #[tokio::test]
