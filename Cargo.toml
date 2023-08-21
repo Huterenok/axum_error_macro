@@ -1,0 +1,29 @@
+[package]
+name = "axum_error_macro"
+version = "0.1.0"
+authors = ["Huterok Bebrov"]
+license = "MIT"
+description = "Simple derive macro for your custom Error enum to generate quickly its status code and message"
+homepage = "https://github.com/Huterok228/axum_error_macro"
+repository = "https://github.com/Huterok228/axum_error_macro"
+keywords = ["axum", "error", "macro"]
+edition = "2021"
+readme = "./README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.6.20"
+hyper = "0.14.27"
+litrs = "0.4.0"
+mime = "0.3.17"
+proc-macro2 = "1.0.66"
+quote = "1.0.32"
+syn = {version = "2.0.28", features = ["extra-traits", "full"]}
+ 
+[dev-dependencies]
+tokio = {version = "1.32.0", features = ["full"]}
+
+[lib]
+proc-macro = true
+
