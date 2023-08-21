@@ -13,21 +13,21 @@ use axum_error_macro::IntoResponse;
 
 #[derive(Debug, Validate, Deserialize)]
 #[derive(IntoResponse)]
-  enum Error {
-    #[error(code = 500, msg = "Internal Server Error!!!")]
-    InternalServerError,
+enum Error {
+  #[error(code = 500, msg = "Internal Server Error!!!")]
+  InternalServerError,
   
-    #[error(code = 400, msg = "Bad Request!!!")]
-    BadRequest,
+  #[error(code = 400, msg = "Bad Request!!!")]
+  BadRequest,
   
-    #[error(code = 404, msg = "User by {} id was not found")]
-    UserByIdNotFound(u32),
+  #[error(code = 404, msg = "User by {} id was not found")]
+  UserByIdNotFound(u32),
   
-    #[error(code = 404, msg = "User by {} username with {} role was not found")]
-    UserByUsernameAndRoleNotFound(String, String),
+  #[error(code = 404, msg = "User by {} username with {} role was not found")]
+  UserByUsernameAndRoleNotFound(String, String),
   
-    #[error(code = 404, msg = "User {:?} was not found")]
-    UserNotFound(User)
+  #[error(code = 404, msg = "User {:?} was not found")]
+  UserNotFound(User)
 }
 
 #[derive(Debug)]
