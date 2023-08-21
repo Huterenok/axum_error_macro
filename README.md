@@ -18,29 +18,29 @@ use axum_error_macro::IntoResponse;
   InternalServerError,
   #[error(code = 400, msg = "Bad Request!!!")]
   BadRequest,
-	#[error(code = 404, msg = "User by {} id was not found")]
+  #[error(code = 404, msg = "User by {} id was not found")]
   UserByIdNotFound(u32),
-	#[error(code = 404, msg = "User {:?} was not found")]
+  #[error(code = 404, msg = "User {:?} was not found")]
   UserNotFound(User)
 }
 
 #[derive(Debug)]
 struct User {
-	username: String
+  username: String
 }
 
 fn server_error_handler() -> Error {
-	return Error::InternalServerError.into_response();
+  return Error::InternalServerError.into_response();
 }
 
 fn user_by_id_handler() -> Error {
-	return Error::UserByIdNotFound(1).into_response();
+  return Error::UserByIdNotFound(1).into_response();
 }
 
 fn user_handler() -> Error {
-	let user = User {
-		username: "Bebra".into()
-	};
-	return Error::UserNotFound(user).into_response();
+  let user = User {
+    username: "Bebra".into()
+  };
+  return Error::UserNotFound(user).into_response();
 }
 ```
