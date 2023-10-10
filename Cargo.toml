@@ -1,6 +1,6 @@
 [package]
 name = "axum_error_macro"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Huterok Bebrov"]
 license = "MIT"
 description = "Simple derive macro for your custom Error enum to generate quickly its status code and message"
@@ -19,10 +19,12 @@ hyper = "0.14.27"
 litrs = "0.4.0"
 proc-macro2 = "1.0.66"
 quote = "1.0.32"
+serde_json = "1.0.107"
 syn = {version = "2.0.28", features = ["extra-traits", "full"]}
  
 [dev-dependencies]
 tokio = {version = "1.32.0", features = ["full"]}
+serde_json = "1.0.107"
 
 [lib]
 proc-macro = true

@@ -2,7 +2,7 @@ Installation:
 
 ```toml
 [dependencies]
-axum_error_macro = { version = "0.1.4" }
+axum_error_macro = { version = "0.1.5" }
 ```
 
 Simple example
@@ -51,5 +51,13 @@ fn user_handler() -> Response {
     username: "Bebra".into()
   };
   return Error::UserNotFound(user).into_response();
+}
+```
+
+Returned data will be in this format:
+
+```json
+{
+  "message": "Internal Server Error!!!"
 }
 ```

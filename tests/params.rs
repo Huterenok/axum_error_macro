@@ -1,5 +1,7 @@
 mod params {
     use axum_error_macro::IntoResponse;
+    use hyper::body::HttpBody;
+    use serde_json::json;
 
     #[tokio::test]
     async fn right_param() {
@@ -13,8 +15,12 @@ mod params {
         let id = 12;
         let username = "Bebra";
 
-        let post_error_msg = format!("Post by {} id was not found", id);
-        let user_error_msg = format!("User by {} username was not found", username);
+        let post_error_msg = json!({
+            "message": format!("Post by {} id was not found", id),
+        });
+        let user_error_msg = json!({
+            "message": format!("User by {} username was not found", username),
+        });
 
         assert_eq!(
             Error::PostByIdNotFound(id)
@@ -22,8 +28,9 @@ mod params {
                 .data()
                 .await
                 .unwrap()
-                .unwrap(),
-            post_error_msg.as_bytes()
+                .unwrap()
+                .to_vec(),
+            post_error_msg.to_string().as_bytes()
         );
 
         assert_eq!(
@@ -32,8 +39,9 @@ mod params {
                 .data()
                 .await
                 .unwrap()
-                .unwrap(),
-            user_error_msg.as_bytes()
+                .unwrap()
+                .to_vec(),
+            user_error_msg.to_string().as_bytes()
         );
     }
 
@@ -44,13 +52,16 @@ mod params {
             #[error(code = 404, msg = "User by {} username with {} role was not found")]
             UserByUsernameAndRoleNotFound(String, String),
         }
+
         let role = "ADMIN";
         let username = "Bebra";
 
-        let error_msg = format!(
+        let error_msg = json!({
+          "message": format!(
             "User by {} username with {} role was not found",
             username, role
-        );
+        )
+        });
 
         assert_eq!(
             Error::UserByUsernameAndRoleNotFound(username.into(), role.into())
@@ -58,8 +69,9 @@ mod params {
                 .data()
                 .await
                 .unwrap()
-                .unwrap(),
-            error_msg.as_bytes()
+                .unwrap()
+                .to_vec(),
+            error_msg.to_string().as_bytes()
         );
     }
 
@@ -79,7 +91,9 @@ mod params {
             username: "bebra".into(),
         };
 
-        let error_msg = format!("User {:?}  was not found", user);
+        let error_msg = json!({
+            "message": format!("User {:?}  was not found", user)
+        });
 
         assert_eq!(
             Error::UserNotFound(user)
@@ -87,8 +101,9 @@ mod params {
                 .data()
                 .await
                 .unwrap()
-                .unwrap(),
-            error_msg.as_bytes()
+                .unwrap()
+                .to_vec(),
+            error_msg.to_string().as_bytes()
         );
     }
 }

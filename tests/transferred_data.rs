@@ -1,5 +1,7 @@
 mod transferred_data {
     use axum_error_macro::IntoResponse;
+    use hyper::body::HttpBody;
+    use serde_json::json;
 
     #[tokio::test]
     async fn right_transferred_data() {
@@ -11,8 +13,12 @@ mod transferred_data {
             BadRequest,
         }
 
-        let msg1 = "Internal server error!!!";
-        let msg2 = "Bad request!!!";
+        let msg1 = json!({
+            "message": "Internal server error!!!"
+        });
+        let msg2 = json!({
+            "message": "Bad request!!!"
+        });
 
         assert_eq!(
             Error::InternalServerError
@@ -20,8 +26,9 @@ mod transferred_data {
                 .data()
                 .await
                 .unwrap()
-                .unwrap(),
-            msg1.as_bytes()
+                .unwrap()
+                .to_vec(),
+            msg1.to_string().as_bytes()
         );
 
         assert_eq!(
@@ -30,8 +37,9 @@ mod transferred_data {
                 .data()
                 .await
                 .unwrap()
-                .unwrap(),
-            msg2.as_bytes()
+                .unwrap()
+                .to_vec(),
+            msg2.to_string().as_bytes()
         );
     }
 
@@ -45,7 +53,9 @@ mod transferred_data {
             #[error(code = 400, msg = "Bad request!!!")]
             BadRequest,
         }
-        let msg = "Wrong error!!!";
+        let msg = json!({
+            "message": "Wrong error!!!"
+        });
 
         assert_eq!(
             Error::InternalServerError
@@ -53,8 +63,9 @@ mod transferred_data {
                 .data()
                 .await
                 .unwrap()
-                .unwrap(),
-            msg.as_bytes()
+                .unwrap()
+                .to_vec(),
+            msg.to_string().as_bytes()
         );
 
         assert_eq!(
@@ -63,8 +74,9 @@ mod transferred_data {
                 .data()
                 .await
                 .unwrap()
-                .unwrap(),
-            msg.as_bytes()
+                .unwrap()
+                .to_vec(),
+            msg.to_string().as_bytes()
         );
     }
 }

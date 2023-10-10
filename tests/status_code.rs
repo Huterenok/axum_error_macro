@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod status_code {
     use axum_error_macro::IntoResponse;
+    use hyper::StatusCode;
 
     #[test]
     fn right_status_code() {

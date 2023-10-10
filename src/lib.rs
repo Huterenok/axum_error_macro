@@ -4,7 +4,7 @@
 //! ```rust
 //! use axum_error_macro::IntoResponse;
 //!	use axum::response::Response;
-//! 
+//!
 //! #[derive(IntoResponse)]
 //! enum Error {
 //!   #[error(code = 500, msg = "Internal Server Error!!!")]
@@ -18,7 +18,7 @@
 //!
 //!   #[error(code = 404, msg = "User by {} username with {} role was not found")]
 //!   UserByUsernameAndRoleNotFound(String, String),
-//! 
+//!
 //!   #[error(code = 404, msg = "User {:?} was not found")]
 //!   UserNotFound(User)
 //! }
@@ -47,6 +47,14 @@
 //!   return Error::UserNotFound(user).into_response();
 //! }
 //! ```
+//! Returned data will be in this format:
+//!
+//! ```json
+//! {
+//!   "message": "Internal Server Error!!!"
+//! }
+//! ```
+//!
 
 use litrs::{IntegerLit, StringLit};
 use proc_macro::TokenStream;
@@ -72,12 +80,10 @@ fn impl_error(ast: syn::DeriveInput) -> TokenStream {
 
     let expanded = quote!(
           use axum::response::IntoResponse;
-          use axum::http::StatusCode;
-          use hyper::body::HttpBody;
 
-          const TEXT_PLAIN: &str = "text/plain";
+          const CONTENT_TYPE: &str = "application/json";
 
-          pub struct #eident(axum::http::StatusCode, String);
+          struct #eident(axum::http::StatusCode, String);
 
           impl #eident {
             pub fn new(code: u16, msg: String) -> Self {
@@ -88,13 +94,17 @@ fn impl_error(ast: syn::DeriveInput) -> TokenStream {
 
           impl axum::response::IntoResponse for #eident {
             fn into_response(self) -> axum::response::Response {
+                let body = axum::body::Body::from(serde_json::json!({
+                    "message": self.1,
+                }).to_string());
+
                 axum::response::Response::builder()
                   .status(self.0)
                   .header(
                     hyper::header::CONTENT_TYPE,
-                    axum::http::HeaderValue::from_static(TEXT_PLAIN),
+                    axum::http::HeaderValue::from_static(CONTENT_TYPE),
                   )
-                  .body(axum::body::boxed(axum::body::Full::from(self.1)))
+                  .body(axum::body::boxed(body))
                   .unwrap()
             }
           }
