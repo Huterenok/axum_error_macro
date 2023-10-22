@@ -2,10 +2,10 @@
 //!
 //! ## Example:
 //! ```rust
-//! use axum_error_macro::IntoResponse;
+//! use axum_error_macro::ErrorResponse;
 //!	use axum::response::Response;
 //!
-//! #[derive(IntoResponse)]
+//! #[derive(ErrorResponse)]
 //! enum Error {
 //!   #[error(code = 500, msg = "Internal Server Error!!!")]
 //!   InternalServerError,
@@ -46,15 +46,24 @@
 //!   };
 //!   return Error::UserNotFound(user).into_response();
 //! }
+//!
+//
 //! ```
-//! Returned data will be in this format:
+//! Also you can configure error response format with #[format(...)] macro.
+//! Today only "application/json" and "text/plain" are available.
+//!
+//! Returned response will be in this format:
 //!
 //! ```json
 //! {
 //!   "message": "Internal Server Error!!!"
 //! }
 //! ```
+//! or
 //!
+//! ```bash
+//! Internal Server Error!!!
+//! ```
 
 use litrs::{IntegerLit, StringLit};
 use proc_macro::TokenStream;
@@ -65,7 +74,7 @@ use syn::spanned::Spanned;
 use syn::token::Comma;
 use syn::{Fields, MetaList, Variant};
 
-#[proc_macro_derive(IntoResponse, attributes(error))]
+#[proc_macro_derive(ErrorResponse, attributes(error, error_format))]
 pub fn axum_error_macro_derive(input: TokenStream) -> TokenStream {
     let ast: syn::DeriveInput = syn::parse(input).unwrap();
     impl_error(ast)
@@ -75,13 +84,14 @@ fn impl_error(ast: syn::DeriveInput) -> TokenStream {
     let ident = &ast.ident;
     let eident = Ident::new(&format!("Derive{}", ident.to_string()), ident.span());
 
+    let format = retrieve_format(&ast);
     let variants = retrieve_variants(&ast);
     let matches = match_error(ident.clone(), eident.clone(), variants);
 
     let expanded = quote!(
           use axum::response::IntoResponse;
 
-          const CONTENT_TYPE: &str = "application/json";
+          const CONTENT_TYPE: &str = #format;
 
           struct #eident(axum::http::StatusCode, String);
 
@@ -90,13 +100,24 @@ fn impl_error(ast: syn::DeriveInput) -> TokenStream {
                let code = axum::http::StatusCode::from_u16(code).expect("Error code must be valid");
                #eident(code, msg)
             }
+
+            pub fn generate_response(&self) -> axum::body::Body {
+                let msg = match CONTENT_TYPE {
+                    "application/json" => {
+                        serde_json::json!({
+                          "message": self.1,
+                        }).to_string()
+                    },
+                    "text/plain" => self.1.to_string(),
+                    _ => panic!("Wrong format type")
+                };
+                axum::body::Body::from(msg)
+            }
           }
 
           impl axum::response::IntoResponse for #eident {
             fn into_response(self) -> axum::response::Response {
-                let body = axum::body::Body::from(serde_json::json!({
-                    "message": self.1,
-                }).to_string());
+                let body = self.generate_response();
 
                 axum::response::Response::builder()
                   .status(self.0)
@@ -120,6 +141,19 @@ fn impl_error(ast: syn::DeriveInput) -> TokenStream {
     );
 
     expanded.into()
+}
+
+fn retrieve_format(ast: &syn::DeriveInput) -> String {
+    if let Some(attr) = ast.attrs.get(0) {
+        if let syn::Meta::List(meta_list) = &attr.meta {
+            let format = meta_list.tokens.to_string().replace("\"", "");
+            match format.as_str() {
+                "application/json" | "text/plain" => return format,
+                _ => panic!("Wrong format type"),
+            }
+        }
+    }
+    "text/plain".into()
 }
 
 fn retrieve_variants(ast: &syn::DeriveInput) -> Punctuated<Variant, Comma> {

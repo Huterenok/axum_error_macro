@@ -2,16 +2,17 @@ Installation:
 
 ```toml
 [dependencies]
-axum_error_macro = { version = "0.1.5" }
+axum_error_macro = { version = "0.1.6" }
 ```
 
 Simple example
 
 ```rust
-use axum_error_macro::IntoResponse;
+use axum_error_macro::ErrorResponse;
 use axum::response::Response;
 
-#[derive(IntoResponse)]
+#[derive(ErrorResponse)]
+#[format("application/json")]
 enum Error {
   #[error(code = 500, msg = "Internal Server Error!!!")]
   InternalServerError,
@@ -54,10 +55,19 @@ fn user_handler() -> Response {
 }
 ```
 
+Also you can configure error response format with #[format(...)] macro.
+Today only "application/json" and "text/plain" are available.
+
 Returned data will be in this format:
 
 ```json
 {
   "message": "Internal Server Error!!!"
 }
+```
+
+or
+
+```bash
+Internal Server Error!!!
 ```
