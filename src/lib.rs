@@ -6,6 +6,7 @@
 //!	use axum::response::Response;
 //!
 //! #[derive(ErrorResponse)]
+//! #[error_format("application/json")]
 //! enum Error {
 //!   #[error(code = 500, msg = "Internal Server Error!!!")]
 //!   InternalServerError,
@@ -49,7 +50,7 @@
 //!
 //
 //! ```
-//! Also you can configure error response format with #[format(...)] macro.
+//! Also you can configure error response format with #[error_format(...)] macro.
 //! Today only "application/json" and "text/plain" are available.
 //!
 //! Returned response will be in this format:

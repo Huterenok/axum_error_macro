@@ -2,7 +2,7 @@ Installation:
 
 ```toml
 [dependencies]
-axum_error_macro = { version = "0.1.6" }
+axum_error_macro = { version = "0.1.7" }
 ```
 
 Simple example
@@ -12,7 +12,7 @@ use axum_error_macro::ErrorResponse;
 use axum::response::Response;
 
 #[derive(ErrorResponse)]
-#[format("application/json")]
+#[error_format("application/json")]
 enum Error {
   #[error(code = 500, msg = "Internal Server Error!!!")]
   InternalServerError,
@@ -55,7 +55,7 @@ fn user_handler() -> Response {
 }
 ```
 
-Also you can configure error response format with #[format(...)] macro.
+Also you can configure error response format with #[error_format(...)] macro.
 Today only "application/json" and "text/plain" are available.
 
 Returned data will be in this format:
